@@ -60,12 +60,19 @@ lightClient.on("data", (_data) => {
     // }
 });
 
+lightClient.on("connect", (_data)=>{
+    console.log("TCP Connected");
+});
 lightClient.on("close", (_data)=>{
     console.log("TCP Closed");
     //NOSONAR
     // lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
     //     console.log('TCP connection established with the server.');
     // });
+});
+lightClient.on("error", (err)=>{
+    console.log("Error:");
+    console.log(err);
 });
 
 /*
@@ -78,33 +85,29 @@ app.get('/', function(_req, res) {
     res.sendFile(__dirname + "/src/pages/index.html");
 });
 
+app.get("/connectsocket", function(_req, res) {
+    res.send('');
+    lightClient.connect({port: 5577, host: "192.168.1.2"});
+});
+app.get("/disconnectsocket", function(_req, res) {
+    res.send('');
+    lightClient.destroy();
+});
 app.get("/ylw", function(_req, res) {
     res.send('');
-    lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
-        lightClient.write(generateSendableHex(231, 228, 45));
-        lightClient.end();
-    });
+    lightClient.write(generateSendableHex(231, 228, 45));
 });
 app.get("/red", function(_req, res) {
     res.send('');
-    lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
-        lightClient.write(generateSendableHex(218, 5, 5));
-        lightClient.end();
-    });
+    lightClient.write(generateSendableHex(218, 5, 5));
 });
 app.get("/blu", function(_req, res) {
     res.send('');
-    lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
-        lightClient.write(generateSendableHex(56, 67, 220));
-        lightClient.end();
-    });
+    lightClient.write(generateSendableHex(56, 67, 220));
 });
 app.get("/off", function(_req, res) {
     res.send('');
-    lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
-        lightClient.write(generateSendableHex(0,0,0));
-        lightClient.end();
-    });
+    lightClient.write(generateSendableHex(0,0,0));
 });
 //NOSONAR
 // app.get("/status", function(_req, res) {
