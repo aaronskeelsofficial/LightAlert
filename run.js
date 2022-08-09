@@ -35,8 +35,18 @@ function generateSendableHex(r, g, b){
     return Buffer.from(hexString, 'hex');
 }
 
+const _wakeClient = new NET.Socket();
+function wakeUpLights(){
+    _wakeClient.connect({port: 5577, host: "192.168.1.2"}, () => {
+        _wakeClient.write(generateSendableHex(0,0,0));
+        _wakeClient.write(generateSendableHex(0,0,0));
+        _wakeClient.write(generateSendableHex(0,0,0));
+        _wakeClient.end();
+    });
+}
+
 //NOSONAR
-// var originalColorBuffer = [-1,-1,-1]; //Defaulted to -1. When -1, this means buffer is "empty".
+// let originalColorBuffer = [-1,-1,-1]; //Defaulted to -1. When -1, this means buffer is "empty".
 // function attemptReloadStatus() {
 //     //This function "attempts" because an original color may already be in buffer and waiting to be replaced
 //     if(originalColorBuffer && originalColorBuffer[0] != -1){
