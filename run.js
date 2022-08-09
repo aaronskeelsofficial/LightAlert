@@ -35,37 +35,37 @@ function generateSendableHex(r, g, b){
     return Buffer.from(hexString, 'hex');
 }
 
-var originalColorBuffer = [-1,-1,-1]; //Defaulted to -1. When -1, this means buffer is "empty".
-function attemptReloadStatus() {
-    //This function "attempts" because an original color may already be in buffer and waiting to be replaced
-    if(originalColorBuffer && originalColorBuffer[0] != -1){
-        //Do Nothing
-    } else {
-        lightClient.write(Buffer.from("818a8b96", "hex"));
-    }
-}
+//NOSONAR
+// var originalColorBuffer = [-1,-1,-1]; //Defaulted to -1. When -1, this means buffer is "empty".
+// function attemptReloadStatus() {
+//     //This function "attempts" because an original color may already be in buffer and waiting to be replaced
+//     if(originalColorBuffer && originalColorBuffer[0] != -1){
+//         //Do Nothing
+//     } else {
+//         lightClient.write(Buffer.from("818a8b96", "hex"));
+//     }
+// }
 
 const lightClient = new NET.Socket();
 lightClient.setEncoding('hex');
-lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
-    console.log('TCP connection established with the server.');
-});
 
-lightClient.on("data", (data) => {
-    if(data.startsWith("81")) {
-        let rString = data[12] + data[13];
-        let gString = data[14] + data[15];
-        let bString = data[16] + data[17];
-        originalColorBuffer = [parseInt(rString), parseInt(gString), parseInt(bString)];
-        console.log("Light Comms RX: " + originalColorBuffer);
-    }
+lightClient.on("data", (_data) => {
+    //NOSONAR
+    // if(data.startsWith("81")) {
+    //     let rString = data[12] + data[13];
+    //     let gString = data[14] + data[15];
+    //     let bString = data[16] + data[17];
+    //     originalColorBuffer = [parseInt(rString), parseInt(gString), parseInt(bString)];
+    //     console.log("Light Comms RX: " + originalColorBuffer);
+    // }
 });
 
 lightClient.on("close", (_data)=>{
     console.log("TCP Closed");
-    lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
-        console.log('TCP connection established with the server.');
-    });
+    //NOSONAR
+    // lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
+    //     console.log('TCP connection established with the server.');
+    // });
 });
 
 /*
@@ -80,24 +80,37 @@ app.get('/', function(_req, res) {
 
 app.get("/ylw", function(_req, res) {
     res.send('');
-    lightClient.write(generateSendableHex(231, 228, 45));
+    lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
+        lightClient.write(generateSendableHex(231, 228, 45));
+        lightClient.end();
+    });
 });
 app.get("/red", function(_req, res) {
     res.send('');
-    lightClient.write(generateSendableHex(218, 5, 5));
+    lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
+        lightClient.write(generateSendableHex(218, 5, 5));
+        lightClient.end();
+    });
 });
 app.get("/blu", function(_req, res) {
     res.send('');
-    lightClient.write(generateSendableHex(56, 67, 220));
+    lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
+        lightClient.write(generateSendableHex(56, 67, 220));
+        lightClient.end();
+    });
 });
 app.get("/off", function(_req, res) {
     res.send('');
-    lightClient.write(generateSendableHex(0,0,0));
+    lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
+        lightClient.write(generateSendableHex(0,0,0));
+        lightClient.end();
+    });
 });
-app.get("/status", function(_req, res) {
-    attemptReloadStatus();
-    setTimeout(()=>{res.send(originalColorBuffer);}, 100);
-});
+//NOSONAR
+// app.get("/status", function(_req, res) {
+//     attemptReloadStatus();
+//     setTimeout(()=>{res.send(originalColorBuffer);}, 100);
+// });
 
 app.listen(port, function() {
   console.log(`Example app listening on port ${port}!`)
