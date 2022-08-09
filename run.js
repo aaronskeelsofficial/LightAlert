@@ -61,7 +61,7 @@ lightClient.on("data", (data) => {
     }
 });
 
-lightClient.on("close", (data)=>{
+lightClient.on("close", (_data)=>{
     console.log("TCP Closed");
     lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
         console.log('TCP connection established with the server.');
