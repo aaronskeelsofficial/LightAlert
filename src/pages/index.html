@@ -103,23 +103,25 @@
       document.getElementById("main").style.visibility = "hidden";
       document.getElementById("message").innerText = messageToDisplay;
       document.getElementById("msgprompt").style.visibility = "visible";
-      for(let i = 0;i < maxSteps;i++) {
-        window.setTimeout(()=>{
-          if(i%2 == 0){
-            httpGet(onUrl);
-            setBGTint(r,g,b);
-          } else {
-            httpGet("/off");
-            setBGTint(0,0,0);
-          }
+      httpGet("/off");
+      window.setTimeout(()=>{
+        for(let i = 0;i < maxSteps;i++) {
+          window.setTimeout(()=>{
+            if(i%2 == 0){
+              httpGet(onUrl);
+              setBGTint(r,g,b);
+            } else {
+              httpGet("/off");
+              setBGTint(0,0,0);
+            }
 
-          if(i == maxSteps-1) {
-            document.getElementById("main").style.visibility = "visible";
-            document.getElementById("msgprompt").style.visibility = "hidden";
-            window.setTimeout(()=>{httpGet("/get")},50);
-          }
-        }, timeDelta*i);
-      }
+            if(i == maxSteps-1) {
+              document.getElementById("main").style.visibility = "visible";
+              document.getElementById("msgprompt").style.visibility = "hidden";
+            }
+          }, timeDelta*i);
+        }
+      }, 300);
     }
 
     //Button 1
