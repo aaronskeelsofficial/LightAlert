@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Boilerplate Stuff -->
+  <meta charset="utf-8">
+  <title>A's Lightroom</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+  <meta name="theme-color" content="#fafafa">
+  <link rel="stylesheet" href="css/normalize.css">
+
+  <!-- Google Font Input -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet"> 
+
+  <!-- Favicon Generator Stuff -->
+  <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+  
+</head>
+
+<body style="overflow: hidden;">
+  <img id="bgimg" src="/media/abstractbg.jpg" alt="Background" style="width: 100vw; height: 100vh; position: absolute; left: 0px; top: 0px; z-index: -1;" />
+  <div id="bgtint" style="width: 100vw; height: 100vh; position: absolute; left: 0px; top: 0px; z-index: 0;"></div>
+  <div id="msgprompt" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); visibility: hidden; text-align: center; background-color: rgba(255,255,255,.7); z-index: 1;">
+    <p id="message" style="font-family: 'Share Tech Mono', monospace; padding-left: 30px;padding-right: 30px;">testing...</p>
+  </div>
+  <div id="main" style="overflow: hidden; display: flex; flex-flow: row wrap; justify-content: space-evenly; align-items: center; align-content: center; position: absolute; top: 0px; left: 0px; z-index: 1;">
+    <div id="buttondiv1" style="flex: 1 1 auto; min-width: 0; min-height: 0; padding-bottom: 15px; text-align: center; display: flex; flex-direction: column; align-items: center; align-content: center;">
+      <input type="image" id="buttonimg1" src="/media/yellowbuttonpng.png" alt="Button" style="width: 100%; height: 100%;" oncontextmenu="return false;" ondragstart="return false;" />
+      <p style="font-family: 'Share Tech Mono', monospace; margin: 0px; width: fit-content; background-color: rgba(231, 228, 45, .3);">Hi Aaron :)</p>
+    </div>
+    <div id="buttondiv2" style="flex: 1 1 auto; min-width: 0; min-height: 0; padding-bottom: 15px; text-align: center; display: flex; flex-direction: column; align-items: center; align-content: center;">
+      <input type="image" id="buttonimg2" src="/media/redbuttonpng.png" alt="Button" style="width: 100%; height: 100%;" oncontextmenu="return false;" ondragstart="return false;" />
+      <p style="font-family: 'Share Tech Mono', monospace; margin: 0px; width: fit-content; background-color: rgba(218, 58, 58, .3);">ATTENTION... NOW?!?!</p>
+    </div>
+    <div id="buttondiv3" style="flex: 1 1 auto; min-width: 0; min-height: 0; padding-bottom: 15px; text-align: center; display: flex; flex-direction: column; align-items: center; align-content: center;">
+      <input type="image" id="buttonimg3" src="/media/bluebuttonpng.png" alt="Button" style="width: 100%; height: 100%;" oncontextmenu="return false;" ondragstart="return false;" />
+      <p style="font-family: 'Share Tech Mono', monospace; margin: 0px; width: fit-content; background-color: rgba(56, 67, 220, .3);">I'm Sad :(</p>
+    </div>
+  </div>
+
+  <script>
+    /*
+    * Phone setup
+    */
+    document.getElementById("main").style.width = window.innerWidth + "px";
+    document.getElementById("main").style.height = window.innerHeight + "px";
+    if(window.innerWidth < 1000){
+      document.getElementById("buttondiv1").style.minWidth = "51%";
+      document.getElementById("buttondiv2").style.minWidth = "51%";
+      document.getElementById("buttondiv3").style.minWidth = "51%";
+      document.getElementById("buttondiv1").style.maxHeight = "30%";
+      document.getElementById("buttondiv2").style.maxHeight = "30%";
+      document.getElementById("buttondiv3").style.maxHeight = "30%";
+    }
+  </script>
+
+  <script>
+    /*
+    * Make Buttons Clickable
+    */
+
+    //General Get function
+    function httpGet(theUrl) {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+        xmlHttp.send( null );
+        return xmlHttp.responseText;
+    }
+
+    //Set BG Tint Function
+    function setBGTint(r, g, b){
+      if(r == 0 && g == 0 && b == 0)
+        document.getElementById("bgtint").style.backgroundColor = "";
+      else
+        document.getElementById("bgtint").style.backgroundColor = "rgba(" + r.toString() + "," + g.toString() + "," + b.toString() + ",.4)";
+    }
+
+    //General Blink Function
+    function startBlink(onUrl, maxSteps, timeDelta, messageToDisplay, r, g ,b){
+      document.getElementById("main").style.visibility = "hidden";
+      document.getElementById("message").innerText = messageToDisplay;
+      document.getElementById("msgprompt").style.visibility = "visible";
+      for(let i = 0;i < maxSteps;i++) {
+        window.setTimeout(()=>{
+          if(i%2 == 0){
+            httpGet(onUrl);
+            setBGTint(r,g,b);
+          } else {
+            httpGet("/off");
+            setBGTint(0,0,0);
+          }
+
+          if(i == maxSteps-1) {
+            document.getElementById("main").style.visibility = "visible";
+            document.getElementById("msgprompt").style.visibility = "hidden";
+            window.setTimeout(()=>{httpGet("/get")},50);
+          }
+        }, timeDelta*i);
+      }
+    }
+
+    //Button 1
+    function handleStart1() {
+      startBlink("/ylw",4,250,"Currently Saying Hi To Aaron!",231,228,45);
+    }
+    document.getElementById("buttonimg1").addEventListener("mousedown", handleStart1);
+    document.getElementById("buttonimg1").addEventListener("touchstart", handleStart1);
+
+    //Button 2
+    function handleStart2() {
+      startBlink("/red",16,500,"Currently Letting Aaron Know You Need Attention!",218,58,58);
+    }
+    document.getElementById("buttonimg2").addEventListener("mousedown", handleStart2);
+    document.getElementById("buttonimg2").addEventListener("touchstart", handleStart2);
+
+    //Button 3
+    function handleStart3() {
+      startBlink("/blu",2,6000,"Currently Letting Aaron Know You're Sad :(",56,67,220);
+    }
+    document.getElementById("buttonimg3").addEventListener("mousedown", handleStart3);
+    document.getElementById("buttonimg3").addEventListener("touchstart", handleStart3);
+  </script>
+
+</body>
+</html>

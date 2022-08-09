@@ -1,0 +1,15 @@
+{
+  "name": "lightalert",
+  "version": "1.0.0",
+  "description": "Ashlynn needs my attention",
+  "main": "run.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Aaron Skeels",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.1",
+    "net": "^1.0.2"
+  }
+}
