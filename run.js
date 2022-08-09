@@ -49,8 +49,6 @@ const lightClient = new NET.Socket();
 lightClient.setEncoding('hex');
 lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
     console.log('TCP connection established with the server.');
-    attemptReloadStatus();
-    setTimeout(()=>{originalColorBuffer = [-1,-1,-1];}, 150);
 });
 
 lightClient.on("data", (data) => {
