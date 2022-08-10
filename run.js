@@ -38,10 +38,13 @@ function generateSendableHex(r, g, b){
 const _wakeClient = new NET.Socket();
 function wakeUpLights(){
     _wakeClient.connect({port: 5577, host: "192.168.1.2"}, () => {
-        _wakeClient.write(generateSendableHex(0,0,0));
-        _wakeClient.write(generateSendableHex(0,0,0));
-        _wakeClient.write(generateSendableHex(0,0,0));
-        _wakeClient.end();
+        _wakeClient.write(generateSendableHex(0,0,0), ()=>{
+            _wakeClient.write(generateSendableHex(1,1,1), ()=>{
+                _wakeClient.write(generateSendableHex(0,0,0), ()=>{
+                    _wakeClient.end();
+                });
+            });
+        });
     });
 }
 
@@ -92,16 +95,17 @@ lightClient.on("error", (err)=>{
 app.use(EXPRESS.static('public'));
 
 app.get('/', function(_req, res) {
+    wakeUpLights();
     res.sendFile(__dirname + "/src/pages/index.html");
 });
 
 app.get("/connectsocket", function(_req, res) {
-    res.send('');
-    lightClient.connect({port: 5577, host: "192.168.1.2"});
+    lightClient.connect({port: 5577, host: "192.168.1.2"}, ()=>{res.send('');});
 });
 app.get("/disconnectsocket", function(_req, res) {
-    res.send('');
-    lightClient.destroy();
+    lightClient.end(()=>{
+        res.send('');
+    });
 });
 app.get("/ylw", function(_req, res) {
     res.send('');
