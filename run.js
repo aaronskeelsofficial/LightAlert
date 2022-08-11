@@ -108,20 +108,24 @@ app.get("/disconnectsocket", function(_req, res) {
     });
 });
 app.get("/ylw", function(_req, res) {
-    res.send('');
-    lightClient.write(generateSendableHex(231, 228, 45));
+    lightClient.write(generateSendableHex(231, 228, 45), ()=>{
+        res.send('');
+    });
 });
 app.get("/red", function(_req, res) {
-    res.send('');
-    lightClient.write(generateSendableHex(218, 5, 5));
+    lightClient.write(generateSendableHex(218, 5, 5), ()=>{
+        res.send('');
+    });
 });
 app.get("/blu", function(_req, res) {
-    res.send('');
-    lightClient.write(generateSendableHex(56, 67, 220));
+    lightClient.write(generateSendableHex(56, 67, 220), ()=>{
+        res.send('');
+    });
 });
 app.get("/off", function(_req, res) {
-    res.send('');
-    lightClient.write(generateSendableHex(0,0,0));
+    lightClient.write(generateSendableHex(0,0,0), ()=>{
+        res.send('');
+    });
 });
 //NOSONAR
 // app.get("/status", function(_req, res) {
