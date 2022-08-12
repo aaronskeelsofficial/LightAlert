@@ -31,22 +31,23 @@ function generateSendableHex(r, g, b){
     //Preformatted numbers yield solid colors don't question it
     let hexString = "31" + rString + gString + bString + "00000f";
     hexString = hexString + calcChecksum(hexString).toString(16);
-    console.log(hexString);
+    console.log("Sending: " + hexString);
     return Buffer.from(hexString, 'hex');
 }
 
-const _wakeClient = new NET.Socket();
-function wakeUpLights(){
-    _wakeClient.connect({port: 5577, host: "192.168.1.2"}, () => {
-        _wakeClient.write(generateSendableHex(0,0,0), ()=>{
-            _wakeClient.write(generateSendableHex(1,1,1), ()=>{
-                _wakeClient.write(generateSendableHex(0,0,0), ()=>{
-                    _wakeClient.end();
-                });
-            });
-        });
-    });
-}
+//NOSONAR
+// const _wakeClient = new NET.Socket();
+// function wakeUpLights(){
+//     _wakeClient.connect({port: 5577, host: "192.168.1.2"}, () => {
+//         _wakeClient.write(generateSendableHex(0,0,0), ()=>{
+//             _wakeClient.write(generateSendableHex(1,1,1), ()=>{
+//                 _wakeClient.write(generateSendableHex(0,0,0), ()=>{
+//                     _wakeClient.end();
+//                 });
+//             });
+//         });
+//     });
+// }
 
 //NOSONAR
 // let originalColorBuffer = [-1,-1,-1]; //Defaulted to -1. When -1, this means buffer is "empty".
@@ -62,7 +63,14 @@ function wakeUpLights(){
 const lightClient = new NET.Socket();
 lightClient.setEncoding('hex');
 
+let responsePending = undefined;
 lightClient.on("data", (_data) => {
+    console.log("Receiving: " + _data);
+    // console.log(responsePending);
+    if(responsePending) {
+        responsePending.send('');
+        responsePending = undefined;
+    }
     //NOSONAR
     // if(data.startsWith("81")) {
     //     let rString = data[12] + data[13];
@@ -73,15 +81,14 @@ lightClient.on("data", (_data) => {
     // }
 });
 
+lightClient.connected = false;
 lightClient.on("connect", (_data)=>{
     console.log("TCP Connected");
+    lightClient.connected = true;
 });
 lightClient.on("close", (_data)=>{
     console.log("TCP Closed");
-    //NOSONAR
-    // lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
-    //     console.log('TCP connection established with the server.');
-    // });
+    lightClient.connected = false;
 });
 lightClient.on("error", (err)=>{
     console.log("Error:");
@@ -95,43 +102,89 @@ lightClient.on("error", (err)=>{
 app.use(EXPRESS.static('public'));
 
 app.get('/', function(_req, res) {
-    wakeUpLights();
+    // wakeUpLights();
     res.sendFile(__dirname + "/src/pages/index.html");
 });
 
 app.get("/connectsocket", function(_req, res) {
-    lightClient.connect({port: 5577, host: "192.168.1.2"}, ()=>{res.send('');});
+    console.log("/connectsocket: " + _req.ip);
+    if(!lightClient.connected)
+        lightClient.connect({port: 5577, host: "192.168.1.2"}, ()=>{res.send('');});
+    else
+        res.send('');
 });
 app.get("/disconnectsocket", function(_req, res) {
-    lightClient.end(()=>{
+    console.log("/disconnectsocket: " + _req.ip);
+    if(lightClient.connected)
+        lightClient.end(()=>{res.send('');});
+    else
         res.send('');
-    });
 });
 app.get("/ylw", function(_req, res) {
-    lightClient.write(generateSendableHex(231, 228, 45), ()=>{
-        res.send('');
-    });
+    console.log("/ylw: " + _req.ip);
+    function turnYellow() {
+        lightClient.write(generateSendableHex(231, 228, 45), ()=>{
+            res.send('');
+        });
+    }
+    if(lightClient.connected){
+        turnYellow();
+    } else {
+        lightClient.connect({port: 5577, host: "192.168.1.2"}, turnYellow);
+    }
 });
 app.get("/red", function(_req, res) {
-    lightClient.write(generateSendableHex(218, 5, 5), ()=>{
-        res.send('');
-    });
+    console.log("/red: " + _req.ip);
+    function turnRed() {
+        lightClient.write(generateSendableHex(218, 5, 5), ()=>{
+            res.send('');
+        });
+    }
+    if(lightClient.connected){
+        turnRed();
+    } else {
+        lightClient.connect({port: 5577, host: "192.168.1.2"}, turnRed);
+    }
 });
 app.get("/blu", function(_req, res) {
-    lightClient.write(generateSendableHex(56, 67, 220), ()=>{
-        res.send('');
-    });
+    console.log("/blu: " + _req.ip);
+    function turnBlue() {
+        lightClient.write(generateSendableHex(56, 67, 220), ()=>{
+            res.send('');
+        });
+    }
+    if(lightClient.connected){
+        turnBlue();
+    } else {
+        lightClient.connect({port: 5577, host: "192.168.1.2"}, turnBlue);
+    }
 });
 app.get("/off", function(_req, res) {
-    lightClient.write(generateSendableHex(0,0,0), ()=>{
-        res.send('');
-    });
+    console.log("/off: " + _req.ip);
+    function turnOff() {
+        responsePending = res;
+        lightClient.write(Buffer.from("71240fa4", "hex"));
+        console.log("Sending: 71240fa4");
+    }
+    if(lightClient.connected) {
+        turnOff();
+    } else {
+        lightClient.connect({port: 5577, host: "192.168.1.2"}, turnOff);
+    }
 });
-//NOSONAR
-// app.get("/status", function(_req, res) {
-//     attemptReloadStatus();
-//     setTimeout(()=>{res.send(originalColorBuffer);}, 100);
-// });
+app.get("/on", function(_req, res) {
+    console.log("/on: " + _req.ip);
+    function turnOn() {
+        responsePending = res;
+        lightClient.write(Buffer.from("71230fa3", "hex"));
+        console.log("Sending: 71230fa3");
+    }
+    if(lightClient.connected) {
+        turnOn();
+    } else {
+        lightClient.connect({port: 5577, host: "192.168.1.2"}, turnOn);
+    }
+});
 
 app.listen(port, function() {
   console.log(`Example app listening on port ${port}!`)

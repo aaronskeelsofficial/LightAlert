@@ -85,7 +85,7 @@
     //General Get function
     function httpGet(theUrl) {
         var xmlHttp = new XMLHttpRequest();
-        xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+        xmlHttp.open( "GET", theUrl, true ); // false for synchronous request
         xmlHttp.send( null );
         return xmlHttp.responseText;
     }
@@ -103,13 +103,13 @@
       document.getElementById("main").style.visibility = "hidden";
       document.getElementById("message").innerText = messageToDisplay;
       document.getElementById("msgprompt").style.visibility = "visible";
-      httpGet("/connectsocket");
+      httpGet(onUrl);
       //Insert mini delay for connection to actually FINISH. Could use websocket but ew.
       window.setTimeout(()=>{
         for(let i = 0;i < maxSteps;i++) {
           window.setTimeout(()=>{
             if(i%2 == 0){
-              httpGet(onUrl);
+              httpGet("/on");
               setBGTint(r,g,b);
             } else {
               httpGet("/off");
@@ -119,7 +119,7 @@
             if(i == maxSteps-1) {
               document.getElementById("main").style.visibility = "visible";
               document.getElementById("msgprompt").style.visibility = "hidden";
-              window.setTimeout(()=>{httpGet("/disconnectsocket");}, 10);
+              // window.setTimeout(()=>{httpGet("/disconnectsocket");}, 10);
             }
           }, timeDelta*i);
         }
