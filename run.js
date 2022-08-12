@@ -63,14 +63,8 @@ function generateSendableHex(r, g, b){
 const lightClient = new NET.Socket();
 lightClient.setEncoding('hex');
 
-let responsePending = undefined;
 lightClient.on("data", (_data) => {
     console.log("Receiving: " + _data);
-    // console.log(responsePending);
-    if(responsePending) {
-        responsePending.send('');
-        responsePending = undefined;
-    }
     //NOSONAR
     // if(data.startsWith("81")) {
     //     let rString = data[12] + data[13];
@@ -102,6 +96,7 @@ lightClient.on("error", (err)=>{
 app.use(EXPRESS.static('public'));
 
 app.get('/', function(_req, res) {
+    //NOSONAR
     // wakeUpLights();
     res.sendFile(__dirname + "/src/pages/index.html");
 });
@@ -162,7 +157,9 @@ app.get("/blu", function(_req, res) {
 app.get("/off", function(_req, res) {
     console.log("/off: " + _req.ip);
     function turnOff() {
-        responsePending = res;
+        lightClient.once('data', (_data)=>{
+            res.send('');
+        });
         lightClient.write(Buffer.from("71240fa4", "hex"));
         console.log("Sending: 71240fa4");
     }
@@ -175,7 +172,9 @@ app.get("/off", function(_req, res) {
 app.get("/on", function(_req, res) {
     console.log("/on: " + _req.ip);
     function turnOn() {
-        responsePending = res;
+        lightClient.once('data', (_data)=>{
+            res.send('');
+        });
         lightClient.write(Buffer.from("71230fa3", "hex"));
         console.log("Sending: 71230fa3");
     }
