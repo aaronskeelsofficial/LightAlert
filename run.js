@@ -2,7 +2,7 @@ const NET = require('net');
 const GEOIP = require('geoip-lite');
 const EXPRESS = require('express');
 const app = EXPRESS();
-const port = 25565;
+const port = 3001;
 
 /*
 * Setup comms with lights and light util funcs
@@ -88,9 +88,11 @@ lightClient.on("connect", (_data)=>{
 });
 lightClient.on("close", (_data)=>{
     console.log("TCP Closed");
-    lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
-        console.log('TCP connection re-established with the server.');
-    });
+    setTimeout(()=>{
+        lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
+            console.log('TCP connection re-established with the server.');
+        });
+    },1000);
 });
 lightClient.on("error", (err)=>{
     console.log("Error:");
