@@ -1,7 +1,8 @@
 const NET = require('net');
+const GEOIP = require('geoip-lite');
 const EXPRESS = require('express');
 const app = EXPRESS();
-const port = 3001;
+const port = 25565;
 
 /*
 * Setup comms with lights and light util funcs
@@ -31,7 +32,6 @@ function generateSendableHex(r, g, b){
     //Preformatted numbers yield solid colors don't question it
     let hexString = "31" + rString + gString + bString + "00000f";
     hexString = hexString + calcChecksum(hexString).toString(16);
-    console.log(hexString);
     return Buffer.from(hexString, 'hex');
 }
 
@@ -73,15 +73,24 @@ lightClient.on("data", (_data) => {
     // }
 });
 
+function connectLight() {
+    if(!lightClient.connected) {
+        lightClient.connect({port: 5577, host: "192.168.1.2"}, ()=>{lightClient.connected = true;});
+    }
+}
+function disconnectsocket() {
+    if(lightClient.connected) {
+        lightClient.end(()=>{lightClient.connected = false;});
+    }
+}
 lightClient.on("connect", (_data)=>{
     console.log("TCP Connected");
 });
 lightClient.on("close", (_data)=>{
     console.log("TCP Closed");
-    //NOSONAR
-    // lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
-    //     console.log('TCP connection established with the server.');
-    // });
+    lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
+        console.log('TCP connection re-established with the server.');
+    });
 });
 lightClient.on("error", (err)=>{
     console.log("Error:");
@@ -93,34 +102,63 @@ lightClient.on("error", (err)=>{
 */
 
 app.use(EXPRESS.static('public'));
+function logVisit(url, req){
+    let reqIP = req.socket.remoteAddress.replace("::ffff:","");
+    let user;
+    if (reqIP == "127.0.0.1") { //Localhost
+        user = "Aaron";
+    } else if (reqIP == "192.168.1.31") { //Desktop on wifi using internal address
+        user = "Aaron";
+    } else if (reqIP == "192.168.1.6") { //Cellphone on wifi using internal address
+        user = "Aaron";
+    } else if (reqIP == "70.93.230.244") { //Another device on wifi using external address
+        user = "Aaron";
+    } else {
+        user = reqIP;
+    }
+    
+    if(user != "Aaron")
+        console.log(url + "  :  " + user);
+}
 
-app.get('/', function(_req, res) {
+app.get('/', function(req, res) {
     wakeUpLights();
     res.sendFile(__dirname + "/src/pages/index.html");
+    logVisit("/", req);
 });
 
-app.get("/connectsocket", function(_req, res) {
-    lightClient.connect({port: 5577, host: "192.168.1.2"}, ()=>{res.send('');});
-});
-app.get("/disconnectsocket", function(_req, res) {
-    lightClient.end(()=>{
-        res.send('');
+function startBlink(maxSteps, timeDelta, r, g ,b){
+    lightClient.write(generateSendableHex(r, g, b), ()=>{
+        lightClient.write(Buffer.from("71240fa4", "hex"), ()=>{
+            for(let i = 0;i < maxSteps;i++) {
+                setTimeout(()=>{
+                  if(i%2 == 0){
+                    lightClient.write(Buffer.from("71230fa3", "hex"));
+                  } else {
+                    lightClient.write(Buffer.from("71240fa4", "hex"));
+                  }
+                }, timeDelta*i);
+            }
+        });
     });
+}
+app.get("/ylw", function(req, res) {
+    // Yellow: 231, 228, 45
+    res.send('');
+    startBlink(6, 250, 231, 228, 45);
+    logVisit("/ylw", req);
 });
-app.get("/ylw", function(_req, res) {
-    lightClient.write(generateSendableHex(231, 228, 45), ()=>{
-        res.send('');
-    });
+app.get("/red", function(req, res) {
+    // Red: 218, 5, 5
+    res.send('');
+    startBlink(16, 500, 218, 5, 5);
+    logVisit("/red", req);
 });
-app.get("/red", function(_req, res) {
-    lightClient.write(generateSendableHex(218, 5, 5), ()=>{
-        res.send('');
-    });
-});
-app.get("/blu", function(_req, res) {
-    lightClient.write(generateSendableHex(56, 67, 220), ()=>{
-        res.send('');
-    });
+app.get("/blu", function(req, res) {
+    // Blue: 56, 67, 220
+    res.send('');
+    startBlink(2, 6000, 56, 67, 220);
+    logVisit("/blu", req);
 });
 app.get("/off", function(_req, res) {
     lightClient.write(generateSendableHex(0,0,0), ()=>{
@@ -135,4 +173,5 @@ app.get("/off", function(_req, res) {
 
 app.listen(port, function() {
   console.log(`Example app listening on port ${port}!`)
+  connectLight();
 });
