@@ -84,14 +84,17 @@ function disconnectsocket() {
     }
 }
 lightClient.on("connect", (_data)=>{
+    lightClient.connected = true;
     console.log("TCP Connected");
 });
 lightClient.on("close", (_data)=>{
+    lightClient.connected = false;
     console.log("TCP Closed");
 });
 lightClient.on("error", (err)=>{
     console.log("Error:");
     console.log(err);
+    lightClient.end(()=>{connectLight();});
 });
 
 /*
