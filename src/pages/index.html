@@ -144,7 +144,12 @@
     document.getElementById("buttonimg3").addEventListener("mousedown", handleStart3);
     document.getElementById("buttonimg3").addEventListener("touchstart", handleStart3);
 
-    window.setTimeout(()=>{location.reload()}, 30000);
+    function onFocusLoss(args) {
+      document.getElementById("main").style.visibility = "hidden";
+      document.getElementById("message").innerText = "You put your app in the background. Reload the page.";
+      document.getElementById("msgprompt").style.visibility = "visible";
+    }
+    document.addEventListener("visibilitychange", onFocusLoss);
   </script>
 
 </body>
