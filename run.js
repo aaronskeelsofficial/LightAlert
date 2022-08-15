@@ -88,11 +88,6 @@ lightClient.on("connect", (_data)=>{
 });
 lightClient.on("close", (_data)=>{
     console.log("TCP Closed");
-    setTimeout(()=>{
-        lightClient.connect({port: 5577, host: "192.168.1.2"}, () => {
-            console.log('TCP connection re-established with the server.');
-        });
-    },1000);
 });
 lightClient.on("error", (err)=>{
     console.log("Error:");
@@ -127,6 +122,7 @@ app.get('/', function(req, res) {
     wakeUpLights();
     res.sendFile(__dirname + "/src/pages/index.html");
     logVisit("/", req);
+    connectLight();
 });
 
 function startBlink(maxSteps, timeDelta, r, g ,b){
