@@ -124,7 +124,7 @@ function logVisit(url, req){
 }
 
 app.get('/', function(req, res) {
-    wakeUpLights();
+    // wakeUpLights();
     res.sendFile(__dirname + "/src/pages/index.html");
     logVisit("/", req);
     connectLight();
