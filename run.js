@@ -114,8 +114,10 @@ function logVisit(url, req){
         user = reqIP;
     }
     
-    if(user != "Aaron")
-        console.log(url + "  :  " + user);
+    if(user != "Aaron") {
+        let dateString = new Date().toLocaleString();
+        console.log(url + "  :  " + user + " : " + dateString);
+    }
 }
 
 app.get('/', function(req, res) {
