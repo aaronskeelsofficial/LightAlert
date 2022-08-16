@@ -103,23 +103,29 @@
       document.getElementById("main").style.visibility = "hidden";
       document.getElementById("message").innerText = messageToDisplay;
       document.getElementById("msgprompt").style.visibility = "visible";
-      httpGet(onUrl);
-      //Insert mini delay for connection to actually FINISH. Could use websocket but ew.
+      httpGet("/connect");
+      console.log("Made it");
+      //Insert mini delay for connection to finish
       window.setTimeout(()=>{
-        for(let i = 0;i < maxSteps;i++) {
-          window.setTimeout(()=>{
-            if(i%2 == 0){
-              setBGTint(r,g,b);
-            } else {
-              setBGTint(0,0,0);
-            }
+        httpGet(onUrl);
+        //Insert mini delay for color change to finish. Could use websocket but ew.
+        window.setTimeout(()=>{
+          for(let i = 0;i < maxSteps;i++) {
+            window.setTimeout(()=>{
+              if(i%2 == 0){
+                setBGTint(r,g,b);
+              } else {
+                setBGTint(0,0,0);
+              }
 
-            if(i == maxSteps-1) {
-              document.getElementById("main").style.visibility = "visible";
-              document.getElementById("msgprompt").style.visibility = "hidden";
-            }
-          }, timeDelta*i);
-        }
+              if(i == maxSteps-1) {
+                document.getElementById("main").style.visibility = "visible";
+                document.getElementById("msgprompt").style.visibility = "hidden";
+                httpGet("/disconnect");
+              }
+            }, timeDelta*i);
+          }
+        }, 100);
       }, 100);
     }
 

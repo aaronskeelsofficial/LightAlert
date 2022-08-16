@@ -61,6 +61,7 @@ function wakeUpLights(){
 
 const lightClient = new NET.Socket();
 lightClient.setEncoding('hex');
+lightClient.connected = false;
 
 lightClient.on("data", (_data) => {
     //NOSONAR
@@ -73,14 +74,28 @@ lightClient.on("data", (_data) => {
     // }
 });
 
-function connectLight() {
+function connectSocket(cb) {
     if(!lightClient.connected) {
-        lightClient.connect({port: 5577, host: "192.168.1.2"}, ()=>{lightClient.connected = true;});
+        lightClient.connect({port: 5577, host: "192.168.1.2"}, ()=>{
+            lightClient.connected = true;
+            if (cb)
+                cb();
+        });
+    } else {
+        if (cb)
+            cb();
     }
 }
-function disconnectsocket() {
+function disconnectSocket(cb) {
     if(lightClient.connected) {
-        lightClient.end(()=>{lightClient.connected = false;});
+        lightClient.end(()=>{
+            lightClient.connected = false;
+            if (cb)
+                cb();
+        });
+    } else {
+        if (cb)
+            cb();
     }
 }
 lightClient.on("connect", (_data)=>{
@@ -94,7 +109,7 @@ lightClient.on("close", (_data)=>{
 lightClient.on("error", (err)=>{
     console.log("Error:");
     console.log(err);
-    lightClient.end(()=>{connectLight();});
+    lightClient.end(()=>{connectSocket();});
 });
 
 /*
@@ -127,7 +142,7 @@ app.get('/', function(req, res) {
     // wakeUpLights();
     res.sendFile(__dirname + "/src/pages/index.html");
     logVisit("/", req);
-    connectLight();
+    connectSocket();
 });
 
 function startBlink(maxSteps, timeDelta, r, g ,b){
@@ -168,6 +183,12 @@ app.get("/off", function(_req, res) {
         res.send('');
     });
 });
+app.get("/connect", function(_req, res) {
+    connectSocket(()=>{res.send('');});
+});
+app.get("/disconnect", function(_req, res) {
+    disconnectSocket(()=>{res.send('');});
+});
 //NOSONAR
 // app.get("/status", function(_req, res) {
 //     attemptReloadStatus();
@@ -176,5 +197,4 @@ app.get("/off", function(_req, res) {
 
 app.listen(port, function() {
   console.log(`Example app listening on port ${port}!`)
-  connectLight();
 });
